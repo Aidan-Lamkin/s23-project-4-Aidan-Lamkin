@@ -2,6 +2,8 @@
 #include <iostream>
 
 #include "algorithms/fcfs/fcfs_algorithm.hpp"
+#include "algorithms/rr/rr_algorithm.hpp"
+#include "algorithms/spn/spn_algorithm.hpp"
 // TODO: Include your other algorithms as you make them
 
 #include "simulation/simulation.hpp"
@@ -15,8 +17,14 @@ Simulation::Simulation(FlagOptions flags) {
         // Create a FCFS scheduling algorithm
         this->scheduler = std::make_shared<FCFSScheduler>();
 
-    // TODO: Add your other algorithms as you make them
-    } else {
+    }
+    else if(flags.scheduler == "RR"){
+        this->scheduler = std::make_shared<RRScheduler>(flags.time_slice);
+    }
+    else if(flags.scheduler == "SPN"){
+        this->scheduler = std::make_shared<SPNScheduler>();
+    }
+    else {
         throw("No scheduler found for " + flags.scheduler);        
     }
     this->flags = flags;
@@ -205,17 +213,30 @@ void Simulation::handle_dispatcher_invoked(const std::shared_ptr<Event> event) {
 //==============================================================================
 
 SystemStats Simulation::calculate_statistics() {
-    /*
-        TODO: Calculate the following system statistics:
-            - thread_counts[4]
-            - avg_thread_response_times[4]
-            - avg_thread_turnaround_times[4]
-            - total_service_time
-            - total_io_time
-            - total_idle_time
-            - cpu_utilization
-            - cpu_efficiency  
-    */
+    
+    for(auto process: processes){
+        for(auto thread: process.second->threads){
+            this->system_stats.total_service_time += thread->service_time;
+            this->system_stats.total_io_time += thread->io_time;
+
+            this->system_stats.thread_counts[thread->priority] += 1;
+            this->system_stats.avg_thread_response_times[thread->priority] += thread->response_time();
+            this->system_stats.avg_thread_turnaround_times[thread->priority] += thread->turnaround_time();
+        }
+    }
+
+    for(int i = 0; i < 4; i++){
+        int count = this->system_stats.thread_counts[i];
+        if(count > 0){
+            this->system_stats.avg_thread_response_times[i] /= (double)count;
+            this->system_stats.avg_thread_turnaround_times[i] /= (double)count;
+        }
+    }
+
+    this->system_stats.total_idle_time = this->system_stats.total_time - this->system_stats.dispatch_time - this->system_stats.total_service_time;
+    this->system_stats.cpu_utilization = (double(this->system_stats.total_time - this->system_stats.total_idle_time) / double(this->system_stats.total_time)) * 100.0;
+    this->system_stats.cpu_efficiency = (((double)this->system_stats.total_service_time / (double)this->system_stats.total_time)  * 100.0);
+
     return this->system_stats;
 }
 

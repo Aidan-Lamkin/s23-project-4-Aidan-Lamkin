@@ -5,6 +5,7 @@
 
 #define FMT_HEADER_ONLY
 #include "utilities/fmt/format.h"
+#include "types/enums.hpp"
 
 /*
     Here is where you should define the logic for the SPN algorithm.
@@ -17,15 +18,26 @@ SPNScheduler::SPNScheduler(int slice) {
 }
 
 std::shared_ptr<SchedulingDecision> SPNScheduler::get_next_thread() {
-    // TODO: implement me!
-    return nullptr;
+    if(this->q.size() != 0){
+        auto decision = std::make_shared<SchedulingDecision>();
+        decision->thread = this->q.top();
+        decision->explanation = "Selected from " + std::to_string(this->q.size()) + " threads. Will run to completion of burst.";
+        this->q.pop();
+        return decision;
+    }
+    else{
+        // Return null thread scheduling decision
+        auto decision = std::make_shared<SchedulingDecision>();
+        decision->thread = nullptr;
+        decision->explanation = "No threads available for scheduling.";
+        return decision;
+    }
 }
 
 void SPNScheduler::add_to_ready_queue(std::shared_ptr<Thread> thread) {
-    //TODO: Implement me!
+    this->q.push(thread->get_next_burst(BurstType::CPU)->length,thread);
 }
 
 size_t SPNScheduler::size() const {
-    //TODo: Implement me
-    return 0;
+    return this->q.size();
 }
