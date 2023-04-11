@@ -26,6 +26,9 @@ void MFLQScheduler::add_to_ready_queue(std::shared_ptr<Thread> thread) {
 }
 
 size_t MFLQScheduler::size() const {
-        // TODO: implement me!
-        return 0;
+        int size = 0;
+        for(MLFQQueue q: this->qArray){
+            size += q.size();
+        }
+        return size;
 }

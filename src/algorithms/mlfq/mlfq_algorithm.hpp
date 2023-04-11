@@ -38,6 +38,8 @@ public:
 
     size_t size() const;
 
+    MLFQQueue qArray[10];
+
 };
 
 #endif
