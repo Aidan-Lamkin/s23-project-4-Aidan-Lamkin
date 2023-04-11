@@ -18,15 +18,31 @@ PRIORITYScheduler::PRIORITYScheduler(int slice) {
 }
 
 std::shared_ptr<SchedulingDecision> PRIORITYScheduler::get_next_thread() {
-    // TODO: implement me!
-    return nullptr;
+    if(this->q.size() != 0){
+        auto decision = std::make_shared<SchedulingDecision>();
+        decision->thread = this->q.top();
+        int priority = decision->thread->priority;
+        std::string explanation = "[S: " + std::to_string(counts[0]) + " I: " + std::to_string(counts[1]) + " N: " + std::to_string(counts[2]) + " B: " + std::to_string(counts[3]) + "] -> ";
+        counts[priority] -= 1;
+        explanation += "[S: " + std::to_string(counts[0]) + " I: " + std::to_string(counts[1]) + " N: " + std::to_string(counts[2]) + " B: " + std::to_string(counts[3]) + "]. Will run to completion of burst.";
+        decision->explanation = explanation;
+        this->q.pop();
+        return decision;
+    }
+    else{
+        // Return null thread scheduling decision
+        auto decision = std::make_shared<SchedulingDecision>();
+        decision->thread = nullptr;
+        decision->explanation = "No threads available for scheduling.";
+        return decision;
+    }
 }
 
 void PRIORITYScheduler::add_to_ready_queue(std::shared_ptr<Thread> thread) {
-    // TODO: implement me!
+    this->q.push(thread->priority,thread);
+    counts[thread->priority] += 1;
 }
 
 size_t PRIORITYScheduler::size() const {
-    //TODO: Implement me!!
-    return 0;
+    return this->q.size();
 }
