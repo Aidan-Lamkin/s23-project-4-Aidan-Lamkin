@@ -82,6 +82,10 @@ public:
     int state_change_time = -1;
 
 
+    int currentQueue = -1;
+    int remainingTime = 0;
+
+
     /*
         priority:
             The priority of the parent process (and thus the priority of the thread).

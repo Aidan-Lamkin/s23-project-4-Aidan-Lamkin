@@ -28,8 +28,8 @@ Simulation::Simulation(FlagOptions flags) {
     else if(flags.scheduler == "PRIORITY"){
         this->scheduler = std::make_shared<PRIORITYScheduler>();
     }
-    else if(flags.scheduler == "MFLQ"){
-        this->scheduler = std::make_shared<MFLQScheduler>(flags.time_slice);
+    else if(flags.scheduler == "MLFQ"){
+        this->scheduler = std::make_shared<MFLQScheduler>();
     }
     else {
         throw("No scheduler found for " + flags.scheduler);        
